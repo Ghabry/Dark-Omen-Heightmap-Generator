@@ -3,3 +3,5 @@ Heightmap Generator for the game Warhammer Dark Omen.
 Takes a greyscale heightmap, converts it to the Dark Omen format and writes it into the TERR-Section of a PRJ-File.
 
 Code licensed under the WTFPL.
+
+Visit www.dark-omen.org
