@@ -48,7 +48,7 @@ namespace DarkOmen.HeightMapGenerator
 
             int compressedBlockCount = reader.ReadInt32();
             int uncompressedBlockCount = reader.ReadInt32();
-            reader.ReadInt32(); // Block count * 16? (purpose unknown)
+            reader.ReadInt32(); // Size of both heightmaps (not needed)
 
             // 1st Heightmap
             for (int i = 0; i < uncompressedBlockCount; ++i)
@@ -111,7 +111,7 @@ namespace DarkOmen.HeightMapGenerator
 
                 bw.Write(Offsets.Count); // Compressed Count
                 bw.Write(Blocks.Count); // Block count (Uncompressed Count)
-                bw.Write(Offsets.Count * 16); // FIXME: This is a guess :/
+                bw.Write(Blocks.Count * 16); // Size of both heightmaps in byte
 
                 // 1st heightmap
                 foreach (Terrblock block in Blocks)
