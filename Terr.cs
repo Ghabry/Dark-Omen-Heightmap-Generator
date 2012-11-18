@@ -10,28 +10,26 @@ namespace HeightMapGenerator
         public int Size { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-        public int UncompressedBlockCount { get; set; }
-        public int CompressedBlockCount { get; set; }
 
         /// <summary>
         /// List of large block entries
         /// </summary>
-        public IList<Terrblock> blocks { get; private set; }
+        public IList<Terrblock> Blocks { get; private set; }
 
         /// <summary>
         /// List of offsets for 8x8 block (height offset for each block
         /// based on minimum height)
         /// </summary>
-        public IList<byte[]> offsets { get; private set; }
+        public IList<byte[]> Offsets { get; private set; }
 
         // Same for 2nd heightmap
-        public IList<Terrblock> blocks_hmap2 { get; private set; }
+        public IList<Terrblock> Blocks_hmap2 { get; private set; }
 
-        private Terr()
+        public Terr()
         {
-            blocks = new List<Terrblock>();
-            offsets = new List<byte[]>();
-            blocks_hmap2 = new List<Terrblock>();
+            Blocks = new List<Terrblock>();
+            Offsets = new List<byte[]>();
+            Blocks_hmap2 = new List<Terrblock>();
         }
 
         /// <summary>
@@ -49,12 +47,12 @@ namespace HeightMapGenerator
             Width = reader.ReadInt32();
             Height = reader.ReadInt32();
 
-            CompressedBlockCount = reader.ReadInt32();
-            UncompressedBlockCount = reader.ReadInt32();
+            reader.ReadInt32(); // Compressed block count (not needed)
+            int uncompressedBlockCount = reader.ReadInt32();
             reader.ReadInt32(); // Block count * 16? (purpose unknown)
 
             // 1st Heightmap
-            for (int i = 0; i < UncompressedBlockCount; ++i)
+            for (int i = 0; i < uncompressedBlockCount; ++i)
             {
                 Terrblock block = new Terrblock();
                 block.Minimum = reader.ReadInt32();
@@ -65,11 +63,11 @@ namespace HeightMapGenerator
                     throw new IOException("Offset index not a multiple of 64");
                 }
                 block.OffsetIndex /= 64;
-                blocks.Add(block);
+                Blocks.Add(block);
             }
 
             // 2nd Heightmap
-            for (int i = 0; i < UncompressedBlockCount; ++i)
+            for (int i = 0; i < uncompressedBlockCount; ++i)
             {
                 Terrblock block = new Terrblock();
                 block.Minimum = reader.ReadInt32();
@@ -80,19 +78,19 @@ namespace HeightMapGenerator
                     throw new IOException("Offset index not a multiple of 64");
                 }
                 block.OffsetIndex /= 64;
-                blocks_hmap2.Add(block);
+                Blocks_hmap2.Add(block);
             }
 
             int offsetCount = reader.ReadInt32();
 
-            if (CompressedBlockCount * 64 != offsetCount)
+            if (offsetCount % 64 != 0)
             {
-                throw new IOException("Compressed block count and offset count mismatch");
+                throw new IOException("Offset count not a multiple of 64");
             }
 
-            for (int i = 0; i < CompressedBlockCount; ++i)
+            for (int i = 0; i < offsetCount / 64; ++i)
             {
-                offsets.Add(reader.ReadBytes(64));
+                Offsets.Add(reader.ReadBytes(64));
             }
 
             // Should be end of TERR now...
