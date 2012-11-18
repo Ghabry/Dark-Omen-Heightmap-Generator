@@ -79,7 +79,6 @@ namespace DarkOmen.HeightMapGenerator
                 size = prjReader.ReadInt32();
                 fixup = 8;
                 prjBegin.Write(size);
-                prjBegin.Write(fixup);
                 prjBegin.Write(prjReader.ReadBytes(size + fixup));
 
                 this.prjBegin = ms.ToArray();
