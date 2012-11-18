@@ -94,7 +94,10 @@ namespace DarkOmen.HeightMapGenerator
 
                 try
                 {
-                    prjEnd.Write(prjReader.ReadByte());
+                    for (;;)
+                    {
+                        prjEnd.Write(prjReader.ReadByte());
+                    }
                 }
                 catch (EndOfStreamException)
                 {
@@ -111,7 +114,7 @@ namespace DarkOmen.HeightMapGenerator
         /// <param name="writer">Target file</param>
         public void Save(String file)
         {
-            using (FileStream prjFileStream = new FileStream(file, FileMode.Open, FileAccess.Write))
+            using (FileStream prjFileStream = new FileStream(file, FileMode.Create, FileAccess.Write))
             {
                 BinaryWriter prjWriter = new BinaryWriter(prjFileStream);
                 prjWriter.Write(ToArray());
