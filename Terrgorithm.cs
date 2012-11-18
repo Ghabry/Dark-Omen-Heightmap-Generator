@@ -131,3 +131,9 @@ namespace DarkOmen.HeightMapGenerator
         }
     }
 }
+
+// Trick to get Extension Methods in .net 2.0 working
+namespace System.Runtime.CompilerServices
+{
+    public class ExtensionAttribute : Attribute { }
+}
