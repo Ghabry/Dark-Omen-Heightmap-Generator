@@ -87,7 +87,7 @@ namespace DarkOmen.HeightMapGenerator
                 throw new IOException("Compressed block count and offset count mismatch");
             }
 
-            for (int i = 0; i < offsetCount / 64; ++i)
+            for (int i = 0; i < compressedBlockCount; ++i)
             {
                 Offsets.Add(reader.ReadBytes(64));
             }

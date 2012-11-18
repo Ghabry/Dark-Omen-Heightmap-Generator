@@ -69,7 +69,7 @@ namespace DarkOmen.HeightMapGenerator
                 }
 
                 // Block matches
-                newBlock.Minimum = count;
+                newBlock.OffsetIndex = count;
                 return;
 
             next:
@@ -81,7 +81,7 @@ namespace DarkOmen.HeightMapGenerator
             Array.Copy(oldOffsets, newOffsets, 64);
             newTerr.Offsets.Add(newOffsets);
 
-            newBlock.Minimum = newTerr.Offsets.Count - 1;
+            newBlock.OffsetIndex = newTerr.Offsets.Count - 1;
         }
 
         /// <summary>
