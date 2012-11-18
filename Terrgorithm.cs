@@ -111,7 +111,7 @@ namespace DarkOmen.HeightMapGenerator
         {
             Terrblock newBlock = new Terrblock();
             newBlock.Minimum = block.Minimum;
-            newBlock.OffsetIndex = newTerr.Blocks.Count;
+            newBlock.OffsetIndex = newTerr.Blocks.Count + newTerr.Blocks_hmap2.Count;
 
             byte[] newOffsets = new byte[64];
             byte[] oldOffsets = oldTerr.Offsets[block.OffsetIndex];

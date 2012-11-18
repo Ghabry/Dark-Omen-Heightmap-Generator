@@ -105,7 +105,12 @@ namespace DarkOmen.HeightMapGenerator
             {
                 BinaryWriter bw = new BinaryWriter(stream);
                 bw.Write(Encoding.ASCII.GetBytes("TERR"));
-                bw.Write(0); // Padding for Size
+
+                // Size information is strange
+                // Is everything except one heightmap
+                // 24 is for rest of block except TERR and size
+                bw.Write(Blocks.Count * 8 + Offsets.Count * 64 + 24);
+
                 bw.Write(Width);
                 bw.Write(Height);
 
@@ -134,13 +139,6 @@ namespace DarkOmen.HeightMapGenerator
                 }
 
                 byte[] newHeightmap = stream.ToArray();
-
-                // Size is without TERR and size itself
-                int size = newHeightmap.Length - 8;
-                newHeightmap[4] = (byte)size;
-                newHeightmap[5] = (byte)(size >> 8);
-                newHeightmap[6] = (byte)(size >> 16);
-                newHeightmap[7] = (byte)(size >> 24);
 
                 return newHeightmap;
             }
