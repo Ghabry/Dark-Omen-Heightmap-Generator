@@ -7,7 +7,7 @@
     <ProjectGuid>{67DD0041-8AAF-49FE-BE66-DCEE001D1D13}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HeightMapGenerator</RootNamespace>
+    <RootNamespace>DarkOmen.HeightMapGenerator</RootNamespace>
     <AssemblyName>HeightMapGenerator</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -58,6 +58,9 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimplePrj.cs" />
+    <Compile Include="Terr.cs" />
+    <Compile Include="Terrgorithm.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
