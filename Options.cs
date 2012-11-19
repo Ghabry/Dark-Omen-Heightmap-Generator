@@ -11,7 +11,7 @@ namespace DarkOmen.HeightMapGenerator
         [ValueList(typeof(List<string>), MaximumElements = 2)]    
         public IList<string> SourceFiles { get; set; }
 
-        [Option("c", "compress", DefaultValue = false, HelpText = "Compresses the TERR block. Default for -i.")]
+        [Option("c", "compress", DefaultValue = false, HelpText = "Compresses the TERR block. Default if a heightmap is replaced with an image.")]
         public bool Compress { get; set; }
 
         [Option("d", "decompress", DefaultValue = false, HelpText = "Decompresses the TERR block.")]
