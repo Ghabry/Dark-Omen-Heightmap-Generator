@@ -274,7 +274,37 @@ namespace DarkOmen.HeightMapGenerator
             newTerr.Offsets.Add(newOffsets);
         }
 
+        /// <summary>
+        /// Swaps the content of the two heightmaps in a terr block
+        /// </summary>
+        /// <param name="oldTerr">Source terr</param>
+        /// <returns>New terr with swapped heightmaps</returns>
+        public static Terr Swap(this Terr oldTerr)
+        {
+            Terr newTerr = new Terr();
+            newTerr.Width = oldTerr.Width;
+            newTerr.Height = oldTerr.Height;
 
+            foreach (Terrblock block in oldTerr.Blocks)
+            {
+                Terrblock newBlock = new Terrblock(block);
+                newTerr.Blocks_hmap2.Add(newBlock);
+            }
+            foreach (Terrblock block in oldTerr.Blocks_hmap2)
+            {
+                Terrblock newBlock = new Terrblock(block);
+                newTerr.Blocks.Add(newBlock);
+            }
+
+            foreach (byte[] oldOffsets in oldTerr.Offsets)
+            {
+                byte[] newOffsets = new byte[64];
+                Array.Copy(oldOffsets, newOffsets, 64);
+                newTerr.Offsets.Add(newOffsets);
+            }
+
+            return newTerr;
+        }
     }
 }
 
