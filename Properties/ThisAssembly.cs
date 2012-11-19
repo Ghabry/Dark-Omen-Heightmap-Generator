@@ -7,5 +7,5 @@
     internal const string Author = "Gabriel Kind";
     internal const int Year = 2012;
     internal const string Version = "2.0.0.0";
-    internal const string InformationalVersion = "2.0";
+    internal const string InformationalVersion = "2.0b";
 }
