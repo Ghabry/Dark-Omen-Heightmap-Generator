@@ -157,5 +157,17 @@ namespace DarkOmen.HeightMapGenerator
         public Terrblock()
         {
         }
+
+        public Terrblock(int minimum, int offsetIndex)
+        {
+            Minimum = minimum;
+            OffsetIndex = offsetIndex;
+        }
+
+        public Terrblock(Terrblock oldBlock)
+        {
+            Minimum = oldBlock.Minimum;
+            OffsetIndex = oldBlock.OffsetIndex;
+        }
     }
 }
