@@ -13,11 +13,21 @@ namespace DarkOmen.HeightMapGenerator
         SecondHeightmap = 2
     }
 
+    public enum SmoothingAlgorithm
+    {
+        Default = 0,
+        Rob = 1
+    }
+
     /// <summary>
     /// Algorithms for the TERR block
     /// </summary>
     public static class Terrgorithm
     {
+        // Scaling factors for Robs smoothing algorithm
+        public static readonly double HEIGHTMAP_SCALE = 1024.0;
+        public static readonly int MACROBLOCK_SCALE = 128;
+
         /// <summary>
         /// Creates a Terr heightmap from a Bitmap
         /// </summary>
@@ -73,14 +83,12 @@ namespace DarkOmen.HeightMapGenerator
                     {
                         if (h + y >= heightmap.Height)
                         {   // Image height not multiple of 8
-                            //block.Height = y + 1;
                             break;
                         }
                         for (int x = 0; x < 8; ++x)
                         {
                             if (w + x >= heightmap.Width)
                             {   // Image width not multiple of 8
-                                //block.Width = x + 1;
                                 break;
                             }
                             int height = heightmap.GetPixel(w + x, h + y).R;
@@ -108,6 +116,91 @@ namespace DarkOmen.HeightMapGenerator
             }
 
             return newTerr;
+        }
+
+        public static Bitmap ToBitmap(this Terr oldTerr, TargetHeightmaps targetHmaps, SmoothingAlgorithm salg)
+        {
+            bool firstHeightmap = (targetHmaps & TargetHeightmaps.FirstHeightmap) == TargetHeightmaps.FirstHeightmap;
+            bool secondHeightmap = (targetHmaps & TargetHeightmaps.SecondHeightmap) == TargetHeightmaps.SecondHeightmap;
+
+            if (firstHeightmap && secondHeightmap)
+            {
+                throw new ArgumentException("Both TargetHeightmaps specified");
+            }
+            else if (!firstHeightmap && !secondHeightmap)
+            {
+                throw new ArgumentException("No valid TargetHeightmaps specified");
+            }
+
+            IList<Terrblock> blocks;
+            if (firstHeightmap)
+            {
+                blocks = oldTerr.BlocksHmap1;
+            }
+            else
+            {
+                blocks = oldTerr.BlocksHmap2;
+            }
+
+            Bitmap heightmap = new Bitmap(oldTerr.Width, oldTerr.Height);
+
+            // This scary loop iterates row by row over all 8x8 blocks
+            int row = 0;
+            int col = 0;
+            for (int i = 0; i < blocks.Count; ++i)
+            {
+                Terrblock block = blocks[i];
+                byte[] offsets = oldTerr.Offsets[block.OffsetIndex];
+
+                ++col;
+                if (col * 8 >= heightmap.Width)
+                {
+                    col = 0;
+                    row++;
+                }
+
+                // Single 8x8 Block
+                for (int y = 0; y < 8; ++y)
+                {
+                    int targetY = row * 8 + y;
+
+                    if (targetY >= heightmap.Height)
+                    {
+                        break;
+                    }
+                    for (int x = 0; x < 8; ++x)
+                    {
+                        int targetX = col * 8 + x;
+
+                        if (targetX >= heightmap.Width)
+                        {
+                            break;
+                        }
+
+                        Color color;
+                        if (salg == SmoothingAlgorithm.Default)
+                        {
+                            // Downscale from 65535 Minimum to 255 color space
+                            int c = offsets[x + y * 8] + block.Minimum / 257;
+                            color = Color.FromArgb(c, c, c);
+                        }
+                        else if (salg == SmoothingAlgorithm.Rob)
+                        {
+                            // Robs heightmap smoothing code
+                            int c = 20 + ((offsets[x + y * 8] * 128 + block.Minimum) / 1024) * 2;
+                            color = Color.FromArgb(c, c, c);
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Unsupported Smoothing Algorithm");
+                        }
+
+                        heightmap.SetPixel(targetX, targetY, color);
+                    }
+                }
+            }
+
+            return heightmap;
         }
 
         /// <summary>
