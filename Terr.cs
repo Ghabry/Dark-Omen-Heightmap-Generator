@@ -11,9 +11,14 @@ namespace DarkOmen.HeightMapGenerator
         public int Height { get; set; }
 
         /// <summary>
-        /// List of large block entries
+        /// List of large block entries for first heightmap
         /// </summary>
-        public IList<Terrblock> Blocks { get; private set; }
+        public IList<Terrblock> BlocksHmap1 { get; private set; }
+
+        /// <summary>
+        /// List of large block entries for second heightmap
+        /// </summary>
+        public IList<Terrblock> BlocksHmap2 { get; private set; }
 
         /// <summary>
         /// List of offsets for 8x8 block (height offset for each block
@@ -21,14 +26,11 @@ namespace DarkOmen.HeightMapGenerator
         /// </summary>
         public IList<byte[]> Offsets { get; private set; }
 
-        // Same for 2nd heightmap
-        public IList<Terrblock> Blocks_hmap2 { get; private set; }
-
         public Terr()
         {
-            Blocks = new List<Terrblock>();
+            BlocksHmap1 = new List<Terrblock>();
             Offsets = new List<byte[]>();
-            Blocks_hmap2 = new List<Terrblock>();
+            BlocksHmap2 = new List<Terrblock>();
         }
 
         /// <summary>
@@ -62,7 +64,7 @@ namespace DarkOmen.HeightMapGenerator
                     throw new IOException("Offset index not a multiple of 64");
                 }
                 block.OffsetIndex /= 64;
-                Blocks.Add(block);
+                BlocksHmap1.Add(block);
             }
 
             // 2nd Heightmap
@@ -77,7 +79,7 @@ namespace DarkOmen.HeightMapGenerator
                     throw new IOException("Offset index not a multiple of 64");
                 }
                 block.OffsetIndex /= 64;
-                Blocks_hmap2.Add(block);
+                BlocksHmap2.Add(block);
             }
 
             int offsetCount = reader.ReadInt32();
@@ -109,23 +111,23 @@ namespace DarkOmen.HeightMapGenerator
                 // Size information is strange
                 // Is everything except one heightmap
                 // 24 is for rest of block except TERR and size
-                bw.Write(Blocks.Count * 8 + Offsets.Count * 64 + 24);
+                bw.Write(BlocksHmap1.Count * 8 + Offsets.Count * 64 + 24);
 
                 bw.Write(Width);
                 bw.Write(Height);
 
                 bw.Write(Offsets.Count); // Compressed Count
-                bw.Write(Blocks.Count); // Block count (Uncompressed Count)
-                bw.Write(Blocks.Count * 16); // Size of both heightmaps in byte
+                bw.Write(BlocksHmap1.Count); // Block count (Uncompressed Count)
+                bw.Write(BlocksHmap1.Count * 16); // Size of both heightmaps in byte
 
                 // 1st heightmap
-                foreach (Terrblock block in Blocks)
+                foreach (Terrblock block in BlocksHmap1)
                 {
                     bw.Write(block.Minimum);
                     bw.Write(block.OffsetIndex * 64);
                 }
                 // 2nd heightmap
-                foreach (Terrblock block in Blocks_hmap2)
+                foreach (Terrblock block in BlocksHmap2)
                 {
                     bw.Write(block.Minimum);
                     bw.Write(block.OffsetIndex * 64);

@@ -61,11 +61,11 @@ namespace DarkOmen.HeightMapGenerator
                     Terrblock block = new Terrblock();
                     if (!keepFirstHmap)
                     {
-                        newTerr.Blocks.Add(block);
+                        newTerr.BlocksHmap1.Add(block);
                     }
                     if (!keepSecondHmap)
                     {
-                        newTerr.Blocks_hmap2.Add(block);
+                        newTerr.BlocksHmap2.Add(block);
                     }
                     int minHeight = int.MaxValue;
                     byte[] newOffsets = new byte[64];
@@ -118,13 +118,13 @@ namespace DarkOmen.HeightMapGenerator
         /// <param name="newTerr"></param>
         private static void CopyFirstHmap(this Terr oldTerr, Terr newTerr)
         {
-            foreach (Terrblock block in oldTerr.Blocks)
+            foreach (Terrblock block in oldTerr.BlocksHmap1)
             {
                 Terrblock newBlock = new Terrblock(block);
-                newTerr.Blocks.Add(newBlock);
+                newTerr.BlocksHmap1.Add(newBlock);
             }
             // It's decompressed, so the first half of the offsets references the first hmap
-            for (int i = 0; i < oldTerr.Blocks.Count; ++i)
+            for (int i = 0; i < oldTerr.BlocksHmap1.Count; ++i)
             {
                 byte[] newOffsets = new byte[64];
                 Array.Copy(oldTerr.Offsets[i], newOffsets, 64);
@@ -140,13 +140,13 @@ namespace DarkOmen.HeightMapGenerator
         /// <param name="newTerr"></param>
         private static void CopySecondHmap(this Terr oldTerr, Terr newTerr)
         {
-            foreach (Terrblock block in oldTerr.Blocks_hmap2)
+            foreach (Terrblock block in oldTerr.BlocksHmap2)
             {
                 Terrblock newBlock = new Terrblock(block);
-                newTerr.Blocks_hmap2.Add(newBlock);
+                newTerr.BlocksHmap2.Add(newBlock);
             }
             // It's decompressed, so the second half of the offsets references the second hmap
-            for (int i = oldTerr.Blocks.Count; i < oldTerr.Offsets.Count; ++i)
+            for (int i = oldTerr.BlocksHmap1.Count; i < oldTerr.Offsets.Count; ++i)
             {
                 byte[] newOffsets = new byte[64];
                 Array.Copy(oldTerr.Offsets[i], newOffsets, 64);
@@ -167,12 +167,12 @@ namespace DarkOmen.HeightMapGenerator
             newTerr.Width = oldTerr.Width;
             newTerr.Height = oldTerr.Height;
 
-            foreach (Terrblock oldBlock in oldTerr.Blocks)
+            foreach (Terrblock oldBlock in oldTerr.BlocksHmap1)
             {
                 compressBlock(oldTerr, newTerr, oldBlock, true);
             }
 
-            foreach (Terrblock oldBlock in oldTerr.Blocks_hmap2)
+            foreach (Terrblock oldBlock in oldTerr.BlocksHmap2)
             {
                 compressBlock(oldTerr, newTerr, oldBlock, false);
             }
@@ -192,11 +192,11 @@ namespace DarkOmen.HeightMapGenerator
 
             if (firstHmap)
             {
-                newTerr.Blocks.Add(newBlock);
+                newTerr.BlocksHmap1.Add(newBlock);
             }
             else
             {
-                newTerr.Blocks_hmap2.Add(newBlock);
+                newTerr.BlocksHmap2.Add(newBlock);
             }
 
             byte[] oldOffsets = oldTerr.Offsets[block.OffsetIndex];
@@ -239,11 +239,11 @@ namespace DarkOmen.HeightMapGenerator
             newTerr.Width = oldTerr.Width;
             newTerr.Height = oldTerr.Height;
 
-            foreach (Terrblock block in oldTerr.Blocks)
+            foreach (Terrblock block in oldTerr.BlocksHmap1)
             {
                 decompressBlock(oldTerr, newTerr, block, true);
             }
-            foreach (Terrblock block in oldTerr.Blocks_hmap2)
+            foreach (Terrblock block in oldTerr.BlocksHmap2)
             {
                 decompressBlock(oldTerr, newTerr, block, false);
             }
@@ -255,7 +255,7 @@ namespace DarkOmen.HeightMapGenerator
         {
             Terrblock newBlock = new Terrblock();
             newBlock.Minimum = block.Minimum;
-            newBlock.OffsetIndex = newTerr.Blocks.Count + newTerr.Blocks_hmap2.Count;
+            newBlock.OffsetIndex = newTerr.BlocksHmap1.Count + newTerr.BlocksHmap2.Count;
 
             byte[] newOffsets = new byte[64];
             byte[] oldOffsets = oldTerr.Offsets[block.OffsetIndex];
@@ -264,11 +264,11 @@ namespace DarkOmen.HeightMapGenerator
 
             if (firstHmap)
             {
-                newTerr.Blocks.Add(newBlock);
+                newTerr.BlocksHmap1.Add(newBlock);
             }
             else
             {
-                newTerr.Blocks_hmap2.Add(newBlock);
+                newTerr.BlocksHmap2.Add(newBlock);
             }
             
             newTerr.Offsets.Add(newOffsets);
@@ -285,15 +285,15 @@ namespace DarkOmen.HeightMapGenerator
             newTerr.Width = oldTerr.Width;
             newTerr.Height = oldTerr.Height;
 
-            foreach (Terrblock block in oldTerr.Blocks)
+            foreach (Terrblock block in oldTerr.BlocksHmap1)
             {
                 Terrblock newBlock = new Terrblock(block);
-                newTerr.Blocks_hmap2.Add(newBlock);
+                newTerr.BlocksHmap2.Add(newBlock);
             }
-            foreach (Terrblock block in oldTerr.Blocks_hmap2)
+            foreach (Terrblock block in oldTerr.BlocksHmap2)
             {
                 Terrblock newBlock = new Terrblock(block);
-                newTerr.Blocks.Add(newBlock);
+                newTerr.BlocksHmap1.Add(newBlock);
             }
 
             foreach (byte[] oldOffsets in oldTerr.Offsets)

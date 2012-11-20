@@ -150,7 +150,7 @@ namespace DarkOmen.HeightMapGenerator
             // Min/Max Heightmap Value (1st hmap)
             int min = int.MaxValue;
             int max = int.MinValue;
-            foreach (Terrblock block in terr.Blocks)
+            foreach (Terrblock block in terr.BlocksHmap1)
             {
                 min = Math.Min(min, block.Minimum);
                 max = Math.Max(min, block.Minimum);
@@ -160,7 +160,7 @@ namespace DarkOmen.HeightMapGenerator
             // Min/Max Heightmap Value (2nd hmap)
             min = int.MaxValue;
             max = int.MinValue;
-            foreach (Terrblock block in terr.Blocks_hmap2)
+            foreach (Terrblock block in terr.BlocksHmap2)
             {
                 min = Math.Min(min, block.Minimum);
                 max = Math.Max(min, block.Minimum);
@@ -168,8 +168,8 @@ namespace DarkOmen.HeightMapGenerator
             Console.Error.WriteLine("Min/Max (Hmap2): " + min + "/" + max);
 
             // Block count (Macro and Micro blocks) + Compression ratio
-            Console.Error.WriteLine("Blocks: " + terr.Blocks.Count * 2 + "/" + terr.Offsets.Count);
-            String ratio = (100 - (float)terr.Offsets.Count / (terr.Blocks.Count * 2) * 100).ToString("0.00");
+            Console.Error.WriteLine("Blocks: " + terr.BlocksHmap1.Count * 2 + "/" + terr.Offsets.Count);
+            String ratio = (100 - (float)terr.Offsets.Count / (terr.BlocksHmap1.Count * 2) * 100).ToString("0.00");
             Console.Error.WriteLine("Compression: " + ratio + "%");
         }
 
