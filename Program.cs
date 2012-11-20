@@ -13,110 +13,29 @@ namespace DarkOmen.HeightMapGenerator
         private static string prjFile = null;
         private static string imageFile = null;
 
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             var options = new Options();
 
+            int retCode = 1;
             if (CommandLineParser.Default.ParseArguments(args, options))
             {
                 if (options.SourceFiles.Count < 1 || options.SourceFiles.Count > 3)
                 {
                     Console.Error.WriteLine(options.GetUsage());
-                    Environment.Exit(1);
+                    return retCode;
                 }
-                prjFile = args[0];
-                if (options.SourceFiles.Count == 2)
-                {
-                    imageFile = args[1];
-                }
-
-                if (options.Decompress && options.Compress)
-                {
-                    Console.Error.WriteLine("-c and -d are incompatible.");
-                    Environment.Exit(1);
-                }
-
-                if (imageFile != null)
-                {
-                    if (!options.Decompress && !options.Compress)
-                    {
-                        options.Compress = true;
-                    }
-                }
-
-                // If no compression set and no heightmap only display statistics
-                if (!options.SwapHeightmaps && !options.Decompress && !options.Compress)
-                {
-                    if (imageFile != null)
-                    {
-                        options.Compress = true;
-                    }
-                    else
-                    {
-                        options.ShowInformation = true;
-                    }
-                }
-
-                // Overwrite both heightmaps if none selected
-                if (!options.SelectHeightmap1 && !options.SelectHeightmap2)
-                {
-                    options.SelectHeightmap1 = true;
-                    options.SelectHeightmap2 = true;
-                }
+                prjFile = options.SourceFiles[0];
 
                 try
                 {
-                    SimplePrj prj = new SimplePrj(prjFile);
-
-                    // Overwrite file is no output file specified
-                    if (options.TargetFile == null)
+                    if (options.ExtractHeightmap)
                     {
-                        options.TargetFile = prjFile;
+                        retCode = DoImageExtraction(options);
                     }
-
-                    DebugPrintOptions(options);
-
-                    if (imageFile != null)
+                    else
                     {
-                        using (Bitmap bmp = new Bitmap(imageFile))
-                        {
-                            TargetHeightmaps t = TargetHeightmaps.FirstHeightmap | TargetHeightmaps.SecondHeightmap;
-                            if (options.SelectHeightmap1 && !options.SelectHeightmap2)
-                            {
-                                t = TargetHeightmaps.FirstHeightmap;
-                            }
-                            else if (!options.SelectHeightmap1 && options.SelectHeightmap2)
-                            {
-                                t = TargetHeightmaps.SecondHeightmap;
-                            }
-                            prj.Terr = prj.Terr.FromBitmap(bmp, t);
-                        }
-                    }
-
-                    if (options.SwapHeightmaps)
-                    {
-                        prj.Terr = prj.Terr.Swap();
-                    }
-
-                    if (options.Decompress)
-                    {
-                        prj.Terr = prj.Terr.Decompress();
-                    }
-                    else if (options.Compress)
-                    {
-                        prj.Terr = prj.Terr.Compress();
-                    }
-
-                    if (options.SwapHeightmaps ||
-                        options.Decompress ||
-                        options.Compress)
-                    {
-                        prj.Save(options.TargetFile);
-                    }
-
-                    if (options.ShowInformation)
-                    {
-                        PrintStatistic(prj.Terr);
+                        retCode = DoDefault(options);
                     }
                 }
                 catch (Exception e)
@@ -129,17 +48,162 @@ namespace DarkOmen.HeightMapGenerator
                     {
                         Console.Error.Write("Error: ");
                         Console.Error.WriteLine(e.Message);
-                        Environment.Exit(2);
+                        return 2;
                     }
                     else
-                    {   // Crash
+                    {   // Unexpected Exception -> Crash
                         throw;
                     }
                 }
-                Environment.Exit(0);
+            }
+            return retCode;
+        }
+
+        /// <summary>
+        /// Program flow for everything but Image Extraction
+        /// </summary>
+        private static int DoDefault(Options options)
+        {
+            if (options.SourceFiles.Count == 2)
+            {
+                imageFile = options.SourceFiles[1];
             }
 
-            Environment.Exit(1);
+            if (options.Decompress && options.Compress)
+            {
+                Console.Error.WriteLine("-c and -d are incompatible.");
+                return 1;
+            }
+
+            if (imageFile != null)
+            {
+                if (!options.Decompress && !options.Compress)
+                {
+                    options.Compress = true;
+                }
+            }
+
+            // If no compression set and no heightmap only display statistics
+            if (!options.SwapHeightmaps && !options.Decompress && !options.Compress)
+            {
+                if (imageFile != null)
+                {
+                    options.Compress = true;
+                }
+                else
+                {
+                    options.ShowInformation = true;
+                }
+            }
+
+            // Overwrite both heightmaps if none selected
+            if (!options.SelectHeightmap1 && !options.SelectHeightmap2)
+            {
+                options.SelectHeightmap1 = true;
+                options.SelectHeightmap2 = true;
+            }
+
+            // All arguments correct
+            SimplePrj prj = new SimplePrj(prjFile);
+
+            // Overwrite file if no output file specified
+            if (options.TargetFile == null)
+            {
+                options.TargetFile = prjFile;
+            }
+
+            DebugPrintOptions(options);
+
+            // Replace heightmaps if we have a Image File
+            if (imageFile != null)
+            {
+                using (Bitmap bmp = new Bitmap(imageFile))
+                {
+                    TargetHeightmaps t = TargetHeightmaps.FirstHeightmap | TargetHeightmaps.SecondHeightmap;
+                    if (options.SelectHeightmap1 && !options.SelectHeightmap2)
+                    {
+                        t = TargetHeightmaps.FirstHeightmap;
+                    }
+                    else if (!options.SelectHeightmap1 && options.SelectHeightmap2)
+                    {
+                        t = TargetHeightmaps.SecondHeightmap;
+                    }
+                    prj.Terr = prj.Terr.FromBitmap(bmp, t);
+                }
+            }
+
+            if (options.SwapHeightmaps)
+            {
+                prj.Terr = prj.Terr.Swap();
+            }
+
+            if (options.Decompress)
+            {
+                prj.Terr = prj.Terr.Decompress();
+            }
+            else if (options.Compress)
+            {
+                prj.Terr = prj.Terr.Compress();
+            }
+
+            // Edit operations should be saved of course
+            // Image is implicit because it sets Decompress
+            if (options.SwapHeightmaps ||
+                options.Decompress ||
+                options.Compress)
+            {
+                prj.Save(options.TargetFile);
+            }
+
+            if (options.ShowInformation)
+            {
+                PrintStatistic(prj.Terr);
+            }
+            return 0;
+
+        }
+
+        /// <summary>
+        /// Program flow for Image Extraction of Heightmap
+        /// </summary>
+        private static int DoImageExtraction(Options options)
+        {
+            // Need a target file
+            if (options.TargetFile == null)
+            {
+                Console.Error.WriteLine("No target file (-o) provided for image extraction.");
+                return 1;
+            }
+
+            // Need one heightmap
+            TargetHeightmaps t;
+            if (options.SelectHeightmap1 && options.SelectHeightmap2)
+            {
+                Console.Error.WriteLine("Only one heightmap can be extracted at once.");
+                return 1;
+            }
+            else if (options.SelectHeightmap1 && !options.SelectHeightmap2)
+            {
+                t = TargetHeightmaps.FirstHeightmap;
+            }
+            else if (!options.SelectHeightmap1 && options.SelectHeightmap2)
+            {
+                t = TargetHeightmaps.SecondHeightmap;
+            }
+            else
+            {
+                Console.Error.WriteLine("No heightmap (-1 or -2) specified.");
+                return 1;
+            }
+
+            // Argument list correct
+            SimplePrj prj = new SimplePrj(prjFile);
+
+            Bitmap image = prj.Terr.ToBitmap(t,
+                options.RobSmoothing ? SmoothingAlgorithm.Rob : SmoothingAlgorithm.Default);
+            image.Save(options.TargetFile, System.Drawing.Imaging.ImageFormat.Png);
+
+            return 0;
         }
 
         private static void PrintStatistic(Terr terr)
